@@ -2,6 +2,7 @@ import pymysql
 from pymysql.cursors import DictCursor
 import json
 from config import config, questions
+from .statistic import calculate_the_average_score_by_struct
 
 db_config = config['db']
 
@@ -110,23 +111,8 @@ def update_mean(struct_name: str, cursor=None):
     )
 
     stats = cursor.fetchall()
-    divisor = len(stats)
-
-    q1, q2, q3, q4, q5 = 0, 0, 0, 0, 0
-    for item in stats:
-        q1 += item['q1']
-        q2 += item['q2']
-        q3 += item['q3']
-        q4 += item['q4']
-        q5 += item['q5']
-
-    q1 /= divisor / len(questions['q1']['answers'])
-    q2 /= divisor / len(questions['q2']['answers'])
-    q3 /= divisor / len(questions['q3']['answers'])
-    q4 /= divisor / len(questions['q4']['answers'])
-    q5 /= divisor / len(questions['q5']['answers'])
-
-    result = (q1 + q2 + q3 + q4 + q5) / 5
+    result = calculate_the_average_score_by_struct(stats)
+    result = result/len(result)
 
     cursor.execute(
         '''
